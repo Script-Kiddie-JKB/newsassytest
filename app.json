@@ -1,0 +1,83 @@
+{
+  "name": "whatsapp-bot-md",
+  "description": "nodejs whatsapp bot",
+  "logo": "https://i.ibb.co/sWmwD0k/e0bslrup.jpg",
+  "repository": "https://github.com/jacktheboss220/WhatsAppBotMultiDevice",
+  "keywords": [
+    "whatsapp-bot",
+    "instagram",
+    "multi-device",
+    "whatsapp",
+    "bot",
+    "whatsapp-bot-multi-device",
+    "whatsapp-bot-md",
+    "whatsapp-bot-multi-device"
+  ],
+  "env": {
+    "PREFIX": {
+      "description": "Bot Prefix to use before commands",
+      "required": true
+    },
+    "MONGODB_KEY": {
+      "description": "MongoDB Key to store data",
+      "required": true
+    },
+    "myNumber": {
+      "description": "Your WhatsApp Number to use as bot owner",
+      "required": true
+    },
+    "botNumber": {
+      "description": "Your WhatsApp Bot Number to use as bot",
+      "required": true
+    },
+    "REMOVE_BG_KEY": {
+      "description": "Remove.bg API key",
+      "required": false
+    },
+    "DEEPAI_KEY": {
+      "description": "Deepai.org API key",
+      "required": false
+    },
+    "TRUECALLER_ID": {
+      "description": "Truecaller API ID",
+      "required": false
+    },
+    "GOOGLE_API_KEY": {
+      "description": "Google API Key",
+      "required": false
+    },
+    "SEARCH_ENGINE_KEY": {
+      "description": "Google Search Engine Key",
+      "required": false
+    },
+    "OPENAI_API_KEY": {
+      "description": "OpenAI API Key",
+      "required": false
+    },
+    "GENIUS_ACCESS_SECRET": {
+      "description": "Genius Access Secret",
+      "required": false
+    },
+    "HOST_URL": {
+      "description": "Host URL",
+      "required": false
+    },
+    "HEROKU_API_TOKEN": {
+      "description": "Heroku API Token",
+      "required": true
+    },
+    "HEROKU_APP_NAME": {
+      "description": "Heroku App Name",
+      "required": true
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-nodejs#latest"
+    },
+    {
+      "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
+    }
+  ],
+  "addons": []
+}
