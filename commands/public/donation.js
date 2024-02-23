@@ -7,8 +7,8 @@ const handler = async (sock, msg, from, args, msgInfoObj) => {
         {
             image: fs.readFileSync("./assets/donate.png"),
             caption: 'Donate to keep this bot alive!' + '\n'
-                + 'Name - Mahesh Kumar' + '\n'
-                + 'UPI Handle - mahesh8318@paytm'
+                + 'Name - Jaikishan Bagul' + '\n'
+                + 'UPI Handle - pronoob@paytm'
         },
         { quoted: msg }
     )
