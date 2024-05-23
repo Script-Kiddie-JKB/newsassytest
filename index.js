@@ -157,13 +157,22 @@ const addCommands = async () => {
   filenames = await readdir(path);
   filenames.forEach((file) => {
     if (file.endsWith(".js")) {
-      let { command } = require(path + file);
-      let cmd_info = command();
-      for (let c of cmd_info.cmd) {
-        commandsOwners[c] = cmd_info.handler;
-      }
+        let { command } = require(path + file);
+        let cmd_info_list = command();
+
+        if (Array.isArray(cmd_info_list)) {
+            cmd_info_list.forEach(cmd_info => {
+                cmd_info.cmd.forEach(c => {
+                    commandsOwners[c] = cmd_info.handler;
+                });
+            });
+        } else {
+            cmd_info_list.cmd.forEach(c => {
+                commandsOwners[c] = cmd_info_list.handler;
+            });
+        }
     }
-  });
+});
 
   //deleting the files .webp .jpeg .jpg .mp3 .mp4 .png
   path = "./";
