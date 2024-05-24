@@ -2,7 +2,6 @@ const cheerio = require('cheerio');
 const axios = require('axios');
 
 const generalURL = "https://www.horoscope.com/us/horoscopes/general/horoscope-general-daily-today.aspx?sign=";
-const loveURL = "https://www.horoscope.com/us/horoscopes/love/horoscope-love-daily-today.aspx?sign=";
 const careerURL = "https://www.horoscope.com/us/horoscopes/career/horoscope-career-daily-today.aspx?sign=";
 const wellnessURL = "https://www.horoscope.com/us/horoscopes/wellness/horoscope-wellness-daily-today.aspx?sign=";
 
@@ -15,10 +14,6 @@ const getHoroscope = async (url, sign) => {
 
 const getGeneralHoroscope = async (sign) => {
     return getHoroscope(generalURL, sign);
-}
-
-const getLoveHoroscope = async (sign) => {
-    return getHoroscope(loveURL, sign);
 }
 
 const getCareerHoroscope = async (sign) => {
@@ -71,11 +66,10 @@ Please choose one of the horoscopes above by typing its name or emoji.`;
         sendMessageWTyping(from, { text: "Kindly enter the right spelling." }, { quoted: msg });
     } else {
         const generalHoroscope = await getGeneralHoroscope(signs[h_Low]);
-        const loveHoroscope = await getLoveHoroscope(signs[h_Low]);
         const careerHoroscope = await getCareerHoroscope(signs[h_Low]);
         const wellnessHoroscope = await getWellnessHoroscope(signs[h_Low]);
         sendMessageWTyping(from, {
-            text: `🔮 *Horoscope for ${horoscope.toUpperCase()}* 🔮\n\n📅 *Date*: ${new Date().toLocaleDateString()}\n\n🌟 *Nature Holds For you*: ${generalHoroscope.split("-")[1]}\n\n❤️ *Love Horoscope*: ${loveHoroscope.split("-")[1]}\n\n💼 *Career Horoscope*: ${careerHoroscope.split("-")[1]}\n\n💪 *Wellness Horoscope*: ${wellnessHoroscope.split("-")[1]}`
+            text: `🔮 *Horoscope for ${horoscope.toUpperCase()}* 🔮\n\n📅 *Date*: ${new Date().toLocaleDateString()}\n\n🌟 *Nature Holds For you*: ${generalHoroscope.split("-")[1]}\n\n💼 *Career Horoscope*: ${careerHoroscope.split("-")[1]}\n\n💪 *Wellness Horoscope*: ${wellnessHoroscope.split("-")[1]}`
         }, { quoted: msg });
     }
 }
