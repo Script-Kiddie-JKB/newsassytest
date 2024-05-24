@@ -606,26 +606,22 @@ const startSock = async (connectionType) => {
         );
       }
     } else if (commandsAdmins[command]) {
-      return sendMessageWTyping(
-        from,
-        { text: "```❌ The admin commands are blocked for sometime to avoid ban on whatsapp!```" },
-        { quoted: msg }
-      );
-      // if (!isGroup) {
-      //   return sendMessageWTyping(
-      //     from,
-      //     { text: "```❌ This command is only applicable in Groups!```" },
-      //     { quoted: msg }
-      //   );
-      // } else if (isGroupAdmin || moderatos.includes(senderNumber)) {
-      //   return commandsAdmins[command](sock, msg, from, args, msgInfoObj);
-      // } else {
-      //   return sendMessageWTyping(
-      //     from,
-      //     { text: "```🤭 kya matlab tum admin nhi ho.```" },
-      //     { quoted: msg }
-      //   );
-      // }
+      
+       if (!isGroup) {
+         return sendMessageWTyping(
+           from,
+           { text: "```❌ This command is only applicable in Groups!```" },
+           { quoted: msg }
+        );
+      } else if (isGroupAdmin || moderatos.includes(senderNumber)) {
+        return commandsAdmins[command](sock, msg, from, args, msgInfoObj);
+    } else {
+       return sendMessageWTyping(
+           from,
+           { text: "```🤭 kya matlab tum admin nhi ho.```" },
+          { quoted: msg }
+        );
+       }
     } else if (commandsOwners[command]) {
       if (moderatos.includes(senderNumber) || myNumber == senderJid) {
         return commandsOwners[command](sock, msg, from, args, msgInfoObj);
