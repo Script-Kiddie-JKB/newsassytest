@@ -205,4 +205,4 @@ ${readMore}
     });
 }
 
-module.exports.command = () => ({ cmd: ['help', 'menu'], handler });
+module.exports.command = () => ({ cmd: ['helpp', 'menu'], handler });
