@@ -76,9 +76,6 @@ const sendCoursesFromDB = async (sock, msg, from, args, msgInfoObj) => {
                             text: `📘 *Course:* ${value.name}\n\n📖 *Description:* ${value.shoer_description}\n\n🔗 *Enroll:* ${shortLink}\n\n🕒 *Enroll Course Before ${value.sale_end}*`
                         });
                     }
-                    await sendMessageWTyping(from, {
-                        text: '𝙵𝚘𝚛 𝚖𝚘𝚛𝚎 𝙵𝚛𝚎𝚎 𝙲𝚘𝚞𝚛𝚜𝚎𝚜, 𝙹𝚘𝚒𝚗 𝚞𝚜! \n\n🌟 𝙴𝚡𝚙𝚕𝚘𝚛𝚎 𝚝𝚑𝚎 𝚆𝚘𝚛𝚕𝚍 𝚘𝚏 𝙺𝚗𝚘𝚠𝚕𝚎𝚍𝚐𝚎 𝚠𝚒𝚝𝚑 𝚄𝚜 \n\nhttps://chat.whatsapp.com/LVLRFlxL5T4JMsQFoOaouV'
-                    });
                 };
 
                 await sendMessage();
@@ -103,8 +100,9 @@ const sendCoursesFromDB = async (sock, msg, from, args, msgInfoObj) => {
             }
         }
         console.log(`Total courses posted: ${totalPosted}`);
+        // Send the final message after all courses have been posted
         await sendMessageWTyping(from, {
-            text: `✅ Successfully posted ${totalPosted} courses! 🎉📚`
+            text: `✅ Successfully posted ${totalPosted} courses! 🎉📚\n\n𝙵𝚘𝚛 𝚖𝚘𝚛𝚎 𝙵𝚛𝚎𝚎 𝙲𝚘𝚞𝚛𝚜𝚎𝚜, 𝙹𝚘𝚒𝚗 𝚞𝚜! \n\n🌟 𝙴𝚡𝚙𝚕𝚘𝚛𝚎 𝚝𝚑𝚎 𝚆𝚘𝚛𝚕𝚍 𝚘𝚏 𝙺𝚗𝚘𝚠𝚕𝚎𝚍𝚐𝚎 𝚠𝚒𝚝𝚑 𝚄𝚜 \n\nhttps://chat.whatsapp.com/LVLRFlxL5T4JMsQFoOaouV'
         });
     } catch (err) {
         console.error("Error fetching courses from MongoDB:", err);
