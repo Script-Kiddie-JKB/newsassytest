@@ -42,8 +42,8 @@ const fetchAndStoreCourses = async () => {
 
 fetchAndStoreCourses();
 
-// const fetchInterval = setInterval(fetchAndStoreCourses, 20 * 60 * 1000);
-const fetchInterval = setInterval(fetchAndStoreCourses, 30 * 1000);
+const fetchInterval = setInterval(fetchAndStoreCourses, 20 * 60 * 1000);
+// const fetchInterval = setInterval(fetchAndStoreCourses, 30 * 1000);
 
 const sendCoursesFromDB = async (sock, msg, from, args, msgInfoObj) => {
     const { sendMessageWTyping, groupMetadata } = msgInfoObj;
