@@ -47,7 +47,7 @@ const fetchInterval = setInterval(fetchAndStoreCourses, 5 * 60 * 1000);
 
 const sendCoursesFromDB = async (sock, msg, from, args, msgInfoObj) => {
     const { sendMessageWTyping, groupMetadata } = msgInfoObj;
-    const delay_seconds = 600; // Delay of 10 minutes
+    const delay_seconds = Math.floor(Math.random() * 10 + 1) * 60; // Random delay between 1 to 10 minutes
 
     try {
         const courses = await coursesCollection.find({}).toArray();
