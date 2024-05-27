@@ -47,7 +47,7 @@ const fetchInterval = setInterval(fetchAndStoreCourses, 20 * 60 * 1000);
 
 const sendCoursesFromDB = async (sock, msg, from, args, msgInfoObj) => {
     const { sendMessageWTyping, groupMetadata } = msgInfoObj;
-    const delay_seconds = 600; // Delay of 2 minutes
+    const delay_seconds = 600; // Delay of 10 minutes
 
     try {
         const courses = await coursesCollection.find({}).toArray();
@@ -116,10 +116,15 @@ const sendCoursesFromDB = async (sock, msg, from, args, msgInfoObj) => {
                 });
             }
         }
+
         console.log(`🚀 Total courses posted: ${totalPosted}`);
         await sendMessageWTyping(from, {
-            text: `✅ Successfully posted ${totalPosted} courses! 🎉📚\n\n𝙵𝚘𝚛 𝚖𝚘𝚛𝚎 𝙵𝚛𝚎𝚎 𝙲𝚘𝚞𝚛𝚜𝚎𝚜, 𝙹𝚘𝚒𝚗 𝚞𝚜! \n\n🌟 𝙴𝚡𝚙𝚕𝚘𝚛𝚎 𝚝𝚑𝚎 𝚆𝚘𝚛𝚕𝚍 𝚘𝚏 𝙺𝚗𝚘𝚠𝚕𝚎𝚍𝚐𝚎 𝚠𝚒𝚝𝚑 𝚄𝚜 \n\nhttps://chat.whatsapp.com/LVLRFlxL5T4JMsQFoOaouV`
+            text: `✅ Successfully posted ${totalPosted} courses! 🎉📚\n\n𝙵𝚘𝚛 𝚖𝚘𝚛𝚎 𝙵𝚛𝚎𝚎 𝙲𝚘𝚞𝚛𝚜𝚎𝚜, 𝙹𝚘𝚒𝚗 𝚞𝚜! \n\n🌟 𝙴𝚡𝚙𝚕𝚘𝚛𝚎 𝚝𝚑𝚎 𝚆𝚘𝚛𝚕𝚍 𝚘𝚏 𝙺𝚗𝚘𝚠𝚕𝚍𝚎𝚐𝚎 𝚠𝚒𝚝𝚑 𝚄𝚜 \n\nhttps://chat.whatsapp.com/LVLRFlxL5T4JMsQFoOaouV`
         });
+
+        // Clear the in-memory cache after processing all courses
+        postedCoursesCache.clear();
+        console.log("🧹 Cleared the in-memory cache");
     } catch (err) {
         console.error("❌ Error fetching courses from MongoDB:", err);
     }
