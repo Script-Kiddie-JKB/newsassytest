@@ -104,10 +104,10 @@ const sendCoursesFromDB = async (sock, msg, from, args, msgInfoObj) => {
                 postedCoursesCache.add(value.url);
 
                 // Schedule deletion of the posted course from the courses collection after 16 hours
-                setTimeout(async () => {
-                    await coursesCollection.deleteOne({ _id: value._id });
-                    console.log(`🗑️ Deleted posted course '${value.name}' with ID ${value._id} from courses collection after 16 hours`);
-                }, 16 * 60 * 60 * 1000); // 16 hours
+                // setTimeout(async () => {
+                //     await coursesCollection.deleteOne({ _id: value._id });
+                //     console.log(`🗑️ Deleted posted course '${value.name}' with ID ${value._id} from courses collection after 16 hours`);
+                // }, 16 * 60 * 60 * 1000); // 16 hours
 
             } catch (err) {
                 console.error('❌ Error:', err);
@@ -121,6 +121,16 @@ const sendCoursesFromDB = async (sock, msg, from, args, msgInfoObj) => {
         await sendMessageWTyping(from, {
             text: `✅ Successfully posted ${totalPosted} courses! 🎉📚\n\n𝙵𝚘𝚛 𝚖𝚘𝚛𝚎 𝙵𝚛𝚎𝚎 𝙲𝚘𝚞𝚛𝚜𝚎𝚜, 𝙹𝚘𝚒𝚗 𝚞𝚜! \n\n🌟 𝙴𝚡𝚙𝚕𝚘𝚛𝚎 𝚝𝚑𝚎 𝚆𝚘𝚛𝚕𝚍 𝚘𝚏 𝙺𝚗𝚘𝚠𝚕𝚍𝚎𝚐𝚎 𝚠𝚒𝚝𝚑 𝚄𝚜 \n\nhttps://chat.whatsapp.com/LVLRFlxL5T4JMsQFoOaouV`
         });
+
+        // Delete already posted courses from collections after all processing
+        const postedCourses = await postedCoursesCollection.find({ groupJid: from }).toArray();
+        const postedCourseIds = postedCourses.map(postedCourse => postedCourse.courseId);
+
+        await coursesCollection.deleteMany({ _id: { $in: postedCourseIds } });
+        console.log(`🗑️ Deleted ${postedCourseIds.length} courses from the courses collection`);
+
+        await postedCoursesCollection.deleteMany({ courseId: { $in: postedCourseIds }, groupJid: from });
+        console.log(`🗑️ Deleted ${postedCourseIds.length} courses from the postedCourses collection for group '${groupMetadata.subject}'`);
 
         // Clear the in-memory cache after processing all courses
         postedCoursesCache.clear();
