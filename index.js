@@ -146,9 +146,18 @@ const addCommands = async () => {
   filenames.forEach((file) => {
     if (file.endsWith(".js")) {
       let { command } = require(path + file);
-      let cmd_info = command();
-      for (let c of cmd_info.cmd) {
-        commandsAdmins[c] = cmd_info.handler;
+      let cmd_info_list = command();
+
+      if (Array.isArray(cmd_info_list)) {
+        cmd_info_list.forEach(cmd_info => {
+          cmd_info.cmd.forEach(c => {
+            commandsOwners[c] = cmd_info.handler;
+          });
+        });
+      } else {
+        cmd_info_list.cmd.forEach(c => {
+          commandsOwners[c] = cmd_info_list.handler;
+        });
       }
     }
   });
@@ -157,22 +166,22 @@ const addCommands = async () => {
   filenames = await readdir(path);
   filenames.forEach((file) => {
     if (file.endsWith(".js")) {
-        let { command } = require(path + file);
-        let cmd_info_list = command();
+      let { command } = require(path + file);
+      let cmd_info_list = command();
 
-        if (Array.isArray(cmd_info_list)) {
-            cmd_info_list.forEach(cmd_info => {
-                cmd_info.cmd.forEach(c => {
-                    commandsOwners[c] = cmd_info.handler;
-                });
-            });
-        } else {
-            cmd_info_list.cmd.forEach(c => {
-                commandsOwners[c] = cmd_info_list.handler;
-            });
-        }
+      if (Array.isArray(cmd_info_list)) {
+        cmd_info_list.forEach(cmd_info => {
+          cmd_info.cmd.forEach(c => {
+            commandsOwners[c] = cmd_info.handler;
+          });
+        });
+      } else {
+        cmd_info_list.cmd.forEach(c => {
+          commandsOwners[c] = cmd_info_list.handler;
+        });
+      }
     }
-});
+  });
 
   //deleting the files .webp .jpeg .jpg .mp3 .mp4 .png
   path = "./";
@@ -606,22 +615,22 @@ const startSock = async (connectionType) => {
         );
       }
     } else if (commandsAdmins[command]) {
-      
-       if (!isGroup) {
-         return sendMessageWTyping(
-           from,
-           { text: "```❌ This command is only applicable in Groups!```" },
-           { quoted: msg }
+
+      if (!isGroup) {
+        return sendMessageWTyping(
+          from,
+          { text: "```❌ This command is only applicable in Groups!```" },
+          { quoted: msg }
         );
       } else if (isGroupAdmin || moderatos.includes(senderNumber)) {
         return commandsAdmins[command](sock, msg, from, args, msgInfoObj);
-    } else {
-       return sendMessageWTyping(
-           from,
-           { text: "```🤭 kya matlab tum admin nhi ho.```" },
+      } else {
+        return sendMessageWTyping(
+          from,
+          { text: "```🤭 kya matlab tum admin nhi ho.```" },
           { quoted: msg }
         );
-       }
+      }
     } else if (commandsOwners[command]) {
       if (moderatos.includes(senderNumber) || myNumber == senderJid) {
         return commandsOwners[command](sock, msg, from, args, msgInfoObj);
