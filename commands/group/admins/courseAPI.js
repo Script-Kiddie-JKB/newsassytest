@@ -116,14 +116,14 @@ const sendCoursesFromDB = async (sock, msg, from, args, msgInfoObj) => {
     });
 
     // Delete already posted courses from collections after all processing
-    const postedCourses = await postedCoursesCollection.find({ groupJid: from }).toArray();
-    const postedCourseIds = postedCourses.map(postedCourse => postedCourse.courseId);
+    // const postedCourses = await postedCoursesCollection.find({ groupJid: from }).toArray();
+    // const postedCourseIds = postedCourses.map(postedCourse => postedCourse.courseId);
 
-    await coursesCollection.deleteMany({ _id: { $in: postedCourseIds } });
-    console.log(`🗑️ Deleted ${postedCourseIds.length} courses from the courses collection`);
+    // await coursesCollection.deleteMany({ _id: { $in: postedCourseIds } });
+    // console.log(`🗑️ Deleted ${postedCourseIds.length} courses from the courses collection`);
 
-    await postedCoursesCollection.deleteMany({ courseId: { $in: postedCourseIds }, groupJid: from });
-    console.log(`🗑️ Deleted ${postedCourseIds.length} courses from the postedCourses collection for group '${groupMetadata.subject}'`);
+    // await postedCoursesCollection.deleteMany({ courseId: { $in: postedCourseIds }, groupJid: from });
+    // console.log(`🗑️ Deleted ${postedCourseIds.length} courses from the postedCourses collection for group '${groupMetadata.subject}'`);
 
     // Clear the in-memory cache after processing all courses
     postedCoursesCache.clear();
