@@ -45,7 +45,8 @@ fetchAndStoreCourses();
 const fetchInterval = setInterval(fetchAndStoreCourses, 3 * 60 * 1000);
 // const fetchInterval = setInterval(fetchAndStoreCourses, 30 * 1000);
 
-const getRandomDelay = () => Math.floor(Math.random() * (10 * 60 * 1000 - 1 * 60 * 1000) + 1 * 60 * 1000); // Random delay between 1 and 10 minutes
+//const getRandomDelay = () => Math.floor(Math.random() * (10 * 60 * 1000 - 1 * 60 * 1000) + 1 * 60 * 1000); // Random delay between 1 and 10 minutes
+const getRandomDelay = () => Math.floor(Math.random() * (2 * 60 * 1000 - 1 * 60 * 1000) + 1 * 60 * 1000); // Random delay between 1 and 2 minutes
 
 const sendCoursesFromDB = async (sock, msg, from, args, msgInfoObj) => {
     const { sendMessageWTyping, groupMetadata } = msgInfoObj;
