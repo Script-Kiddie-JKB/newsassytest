@@ -12,19 +12,19 @@ const deleteAllCourses = async () => {
     }
 };
 
-// Handler for counting total courses and listing their names with insertion times
+// Handler for counting total courses and listing their names (latest first)
 const countHandler = async (sock, msg, from, msgInfoObj) => {
     const { sendMessageWTyping } = msgInfoObj;
     try {
-        const courses = await coursesCollection.find({}, { projection: { name: 1, insertionTime: 1 } }).toArray();
+        const courses = await coursesCollection.find({}, { projection: { name: 1 } }).sort({ insertionTime: -1 }).toArray();
         const count = courses.length;
 
         let courseDetails = "📚 Total courses available: " + count;
         if (count > 0) {
             courseDetails += "\n\n📋 Course Details:\n";
             courses.forEach(course => {
-                const { name, insertionTime } = course;
-                courseDetails += `• 📖 ${name} - ⏰ Inserted on: ${new Date(insertionTime).toLocaleString()}\n`;
+                const { name } = course;
+                courseDetails += `• 📖 ${name}\n`;
             });
         }
 
