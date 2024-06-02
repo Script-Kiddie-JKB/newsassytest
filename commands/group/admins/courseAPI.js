@@ -53,6 +53,7 @@ const sendCoursesFromDB = async (sock, msg, from, args, msgInfoObj) => {
     const courses = await coursesCollection.find({}).toArray();
     console.log(`📚 Total courses available: ${courses.length}`);
     let totalPosted = 0; // Variable to store the total number of posted courses
+    let allCoursesAlreadyPosted = true; // Flag to track if all courses are already posted
 
     for (const value of courses) {
         try {
@@ -71,6 +72,8 @@ const sendCoursesFromDB = async (sock, msg, from, args, msgInfoObj) => {
                 postedCoursesCache.add(value.url);
                 continue; // Skip this course
             }
+
+            allCoursesAlreadyPosted = false; // At least one course is new
 
             const shortLink = await TinyURL.shorten(value.url);
 
@@ -111,20 +114,16 @@ const sendCoursesFromDB = async (sock, msg, from, args, msgInfoObj) => {
         }
     }
 
-    console.log(`🚀 Total courses posted: ${totalPosted}`);
-    await sendMessageWTyping(from, {
-        text: `✅ Successfully posted ${totalPosted} courses! 🎉📚\n\n𝙵𝚘𝚛 𝚖𝚘𝚛𝚎 𝙵𝚛𝚎𝚎 𝙲𝚘𝚞𝚛𝚜𝚎𝚜, 𝙹𝚘𝚒𝚗 𝚞𝚜! \n\n🌟 𝙴𝚡𝚙𝚕𝚘𝚛𝚎 𝚝𝚑𝚎 𝚆𝚘𝚛𝚕𝚍 𝚘𝚏 𝙺𝚗𝚘𝚠𝚕𝚍𝚎𝚐𝚎 𝚠𝚒𝚝𝚑 𝚄𝚜 \n\nhttps://chat.whatsapp.com/LVLRFlxL5T4JMsQFoOaouV`
-    });
-
-    // Delete already posted courses from collections after all processing
-    // const postedCourses = await postedCoursesCollection.find({ groupJid: from }).toArray();
-    // const postedCourseIds = postedCourses.map(postedCourse => postedCourse.courseId);
-
-    // await coursesCollection.deleteMany({ _id: { $in: postedCourseIds } });
-    // console.log(`🗑️ Deleted ${postedCourseIds.length} courses from the courses collection`);
-
-    // await postedCoursesCollection.deleteMany({ courseId: { $in: postedCourseIds }, groupJid: from });
-    // console.log(`🗑️ Deleted ${postedCourseIds.length} courses from the postedCourses collection for group '${groupMetadata.subject}'`);
+    if (allCoursesAlreadyPosted) {
+        await sendMessageWTyping(from, {
+            text: `🚫 All available courses have already been posted. Please try again after 30 minutes.`
+        });
+    } else {
+        console.log(`🚀 Total courses posted: ${totalPosted}`);
+        await sendMessageWTyping(from, {
+            text: `✅ Successfully posted ${totalPosted} courses! 🎉📚\n\n𝙵𝚘𝚛 𝚖𝚘𝚛𝚎 𝙵𝚛𝚎𝚎 𝙲𝚘𝚞𝚛𝚜𝚎𝚜, 𝙹𝚘𝚒𝚗 𝚞𝚜! \n\n🌟 𝙴𝚡𝚙𝚕𝚘𝚛𝚎 𝚝𝚑𝚎 𝚆𝚘𝚛𝚕𝚍 𝚘𝚏 𝙺𝚗𝚘𝚠𝚕𝚍𝚎𝚐𝚎 𝚠𝚒𝚝𝚑 𝚄𝚜 \n\nhttps://chat.whatsapp.com/LVLRFlxL5T4JMsQFoOaouV`
+        });
+    }
 
     // Clear the in-memory cache after processing all courses
     postedCoursesCache.clear();
