@@ -151,12 +151,12 @@ const addCommands = async () => {
       if (Array.isArray(cmd_info_list)) {
         cmd_info_list.forEach(cmd_info => {
           cmd_info.cmd.forEach(c => {
-            commandsOwners[c] = cmd_info.handler;
+            commandsAdmins[c] = cmd_info.handler;
           });
         });
       } else {
         cmd_info_list.cmd.forEach(c => {
-          commandsOwners[c] = cmd_info_list.handler;
+          commandsAdmins[c] = cmd_info_list.handler;
         });
       }
     }
