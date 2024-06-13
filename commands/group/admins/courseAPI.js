@@ -10,6 +10,9 @@ postedCoursesCollection.createIndex({ courseId: 1, groupJid: 1 });
 // In-memory cache for posted course URLs
 const postedCoursesCache = new Set();
 
+// Processing flag to prevent concurrent executions
+let processing = false;
+
 const fetchAndStoreCourses = async () => {
     const new_order = 'date';
     const new_page = 1;
@@ -50,6 +53,19 @@ const getRandomDelay = () => Math.floor(Math.random() * (2 * 60 * 1000 - 1 * 60 
 
 const sendCoursesFromDB = async (sock, msg, from, args, msgInfoObj) => {
     const { sendMessageWTyping, groupMetadata } = msgInfoObj;
+
+    // Check if the process is already running
+    if (processing) {
+        console.log("🚫 Command is already being processed. Please wait until the current process is complete.");
+        await sendMessageWTyping(from, {
+            text: "🚫 Command is already being processed. Please wait until the current process is complete."
+        });
+        return;
+    }
+
+    // Set the processing flag to true
+    processing = true;
+
     const courses = await coursesCollection.find({}).toArray();
     console.log(`📚 Total courses available: ${courses.length}`);
     let totalPosted = 0; // Variable to store the total number of posted courses
@@ -128,6 +144,9 @@ const sendCoursesFromDB = async (sock, msg, from, args, msgInfoObj) => {
     // Clear the in-memory cache after processing all courses
     postedCoursesCache.clear();
     console.log("🧹 Cleared the in-memory cache");
+
+    // Set the processing flag to false to allow new executions
+    processing = false;
 };
 
 module.exports.command = () => ({ cmd: ["free", "evil"], handler: sendCoursesFromDB });
