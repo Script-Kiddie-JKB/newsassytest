@@ -10,8 +10,8 @@ postedCoursesCollection.createIndex({ courseId: 1, groupJid: 1 });
 // In-memory cache for posted course URLs
 const postedCoursesCache = new Set();
 
-// Processing flag to prevent concurrent executions
-let processing = false;
+// Map to track processing status for each group
+const processingMap = new Map();
 
 const fetchAndStoreCourses = async () => {
     const new_order = 'date';
@@ -54,17 +54,17 @@ const getRandomDelay = () => Math.floor(Math.random() * (2 * 60 * 1000 - 1 * 60 
 const sendCoursesFromDB = async (sock, msg, from, args, msgInfoObj) => {
     const { sendMessageWTyping, groupMetadata } = msgInfoObj;
 
-    // Check if the process is already running
-    if (processing) {
-        console.log("🚫 Command is already being processed. Please wait until the current process is complete.");
+    // Check if the process is already running for the current group
+    if (processingMap.get(from)) {
+        console.log(`🚫 Command is already being processed in group ${from}. Please wait until the current process is complete.`);
         await sendMessageWTyping(from, {
-            text: "🚫 Command is already being processed. Please wait until the current process is complete."
+            text: "🚫 Command is already being processed in this group. Please wait until the current process is complete."
         });
         return;
     }
 
-    // Set the processing flag to true
-    processing = true;
+    // Set the processing flag for the current group to true
+    processingMap.set(from, true);
 
     const courses = await coursesCollection.find({}).toArray();
     console.log(`📚 Total courses available: ${courses.length}`);
@@ -145,8 +145,8 @@ const sendCoursesFromDB = async (sock, msg, from, args, msgInfoObj) => {
     postedCoursesCache.clear();
     console.log("🧹 Cleared the in-memory cache");
 
-    // Set the processing flag to false to allow new executions
-    processing = false;
+    // Set the processing flag for the current group to false
+    processingMap.set(from, false);
 };
 
 module.exports.command = () => ({ cmd: ["free", "evil"], handler: sendCoursesFromDB });
