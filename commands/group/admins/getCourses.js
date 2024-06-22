@@ -1,11 +1,23 @@
 const mdClient = require("../../../mongodb"); // Import MongoDB client
 const coursesCollection = mdClient.db("MyBotDataDB").collection("courses"); // Import courses collection
+const postedCoursesCollection = mdClient.db("MyBotDataDB").collection("postedCourses"); // Import postedCourses collection
 
-// Function to delete all courses and return the count of deleted courses
+// Function to delete all courses from postedCourses collection and return the count of deleted courses
+const deleteAllPostedCourses = async () => {
+    try {
+        const { deletedCount } = await postedCoursesCollection.deleteMany({});
+        return { count: deletedCount };
+    } catch (err) {
+        console.error('❌ Error:', err);
+        throw new Error("❌ Error occurred while deleting all posted courses.");
+    }
+};
+
+// Function to delete all courses from courses collection and return the count of deleted courses
 const deleteAllCourses = async () => {
     try {
         const { deletedCount } = await coursesCollection.deleteMany({});
-        return { count: deletedCount, message: `🗑️ ${deletedCount} courses deleted successfully.` };
+        return { count: deletedCount };
     } catch (err) {
         console.error('❌ Error:', err);
         throw new Error("❌ Error occurred while deleting all courses.");
@@ -39,22 +51,40 @@ const countHandler = async (sock, msg, from, msgInfoObj) => {
     }
 };
 
-const deleteAllHandler = async (sock, msg, from, msgInfoObj) => {
+// Handler for deleting all posted courses
+const deleteAllPostedHandler = async (sock, msg, from, msgInfoObj) => {
     const { sendMessageWTyping } = msgInfoObj;
     try {
-        const { count, message } = await deleteAllCourses();
+        const { count } = await deleteAllPostedCourses();
         sock.sendMessage(from, {
-            text: `✅ ${message} 📚 Total courses available: ${count}` // Sending confirmation message along with the count of deleted courses
+            text: `🗑️ Deleted ${count} posted courses successfully.` // Sending acknowledgement message
         });
     } catch (err) {
         console.error('❌ Error:', err);
         sendMessageWTyping(from, {
-            text: `❌ ${err.message}` // Sending error message
+            text: `❌ Error occurred while deleting all posted courses.` // Sending error message
+        });
+    }
+};
+
+// Handler for deleting all courses
+const deleteAllHandler = async (sock, msg, from, msgInfoObj) => {
+    const { sendMessageWTyping } = msgInfoObj;
+    try {
+        const { count } = await deleteAllCourses();
+        sock.sendMessage(from, {
+            text: `🗑️ Deleted ${count} courses successfully.` // Sending acknowledgement message
+        });
+    } catch (err) {
+        console.error('❌ Error:', err);
+        sendMessageWTyping(from, {
+            text: `❌ Error occurred while deleting all courses.` // Sending error message
         });
     }
 };
 
 module.exports.command = () => [
     { cmd: ["cn"], handler: countHandler }, // Command to count total courses
-    { cmd: ["cd"], handler: deleteAllHandler } // Command to delete all courses
+    { cmd: ["cd"], handler: deleteAllHandler }, // Command to delete all courses
+    { cmd: ["cpd"], handler: deleteAllPostedHandler } // Command to delete all posted courses
 ];

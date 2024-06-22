@@ -1,13 +1,6 @@
-/**
- * @author: github:jacktheboss220
- * @description: This is the main file of the bot.
- * @license: MIT
- * @file: index.js
- */
-//-------------------------------------------------------------------------------------------------------------//
-//-------------------------------------------------SERVER------------------------------------------------------//
-//-------------------------------------------------------------------------------------------------------------//
 const express = require("express");
+const axios = require('axios');
+const TinyURL = require('tinyurl');
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 const port = process.env.PORT || 8000;
@@ -19,21 +12,17 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, () => {
-  // console.clear();
   console.log("\nWeb-server running!\n");
 
   const host_url = process.env.HOST_URL || "";
   if (host_url == "") return;
-  const axios = require("axios");
+
   console.log("Pinging server every 15 minutes:", host_url);
   const pingServer = setInterval(() => {
     axios
       .get(host_url)
       .then((response) => {
-        console.log(
-          "Initial self-request successful:",
-          response.data.timestamp
-        );
+        console.log("Initial self-request successful:", response.data.timestamp);
       })
       .catch((error) => {
         console.error("Initial self-request error:", error.message);
@@ -73,7 +62,6 @@ const logger = P({ level: "silent" });
 
 const store = makeInMemoryStore({ logger });
 store?.readFromFile("./baileys_store_multi.json");
-// save every 10s
 const interval2 = setInterval(() => {
   store?.writeToFile("./baileys_store_multi.json");
 }, 1000 * 10);
@@ -338,6 +326,88 @@ const startSock = async (connectionType) => {
     // console.log("Send Message Error:", err);
     // }
   };
+
+  const coursesCollection = mdClient.db("MyBotDataDB").collection("courses");
+
+  const getRandomDelay = () => Math.floor(Math.random() * (30 * 1000 - 20 * 1000) + 20 * 1000); // Random delay between 20 and 30 seconds
+  
+  const sendCourses = async (courses) => {
+    const evilzone = "917887499710-1569411053@g.us";
+  
+    for (const value of courses) {
+      try {
+        const shortLink = await TinyURL.shorten(value.url);
+  
+        const sendMessage = async () => {
+          if (value.image) {
+            const response = await axios({
+              url: value.image,
+              method: 'GET',
+              responseType: 'arraybuffer'
+            });
+  
+            await sendMessageWTyping(evilzone, {
+              image: response.data,
+              caption: `📘 *Course:* ${value.name}\n\n📖 *Description:* ${value.shoer_description}\n\n🔗 *Enroll:* ${shortLink}\n\n🕒 *Enroll Course Before ${value.sale_end}*`
+            });
+          } else {
+            await sendMessageWTyping(evilzone, {
+              text: `📘 *Course:* ${value.name}\n\n📖 *Description:* ${value.shoer_description}\n\n🔗 *Enroll:* ${shortLink}\n\n🕒 *Enroll Course Before ${value.sale_end}*`
+            });
+          }
+        };
+  
+        await sendMessage();
+        const randomDelay = getRandomDelay();
+        await new Promise(resolve => setTimeout(resolve, randomDelay));
+  
+      } catch (err) {
+        console.error('❌ Error:', err);
+        // Handle error here if needed
+      }
+    }
+  };
+  
+  const fetchAndSendCourses = async () => {
+    try {
+      const new_order = 'date';
+      const new_page = 1;
+      const per_page = 10;
+      const arg_free = 1;
+      const arg_keyword = "";
+      const arg_language = "";
+  
+      const res = await axios.get(`https://www.real.discount/api/all-courses/?store=Udemy&page=${new_page}&per_page=${per_page}&orderby=${new_order}&free=${arg_free}&search=${arg_keyword}&language=${arg_language}`);
+      const courses = res.data.results.filter(course => course.language === "English");
+  
+      console.log(`✨ Fetched ${courses.length} courses from the API`);
+  
+      const existingCourses = await coursesCollection.find({}).toArray();
+      const newCourses = courses.filter(course => !existingCourses.some(existingCourse => existingCourse.url === course.url));
+  
+      if (newCourses.length > 0) {
+        await coursesCollection.insertMany(newCourses);
+        console.log(`📦 Stored ${newCourses.length} new courses in MongoDB`);
+  
+        // Send new courses immediately after storing
+        await sendCourses(newCourses);
+      } else {
+        console.log("🚫 No new courses found");
+      }
+  
+    } catch (err) {
+      console.error("❌ Error fetching and storing courses:", err);
+    }
+  };
+  
+  // Initial execution
+  fetchAndSendCourses();
+  
+  // Set interval to fetch and send courses every 1 minute
+  setInterval(fetchAndSendCourses, 1 * 60 * 1000);
+  
+  
+
   //-------------------------------------------------------------------------------------------------------------//
   const fake_quoted = (anu, message) => {
     return {
