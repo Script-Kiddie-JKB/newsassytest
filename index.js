@@ -329,84 +329,82 @@ const startSock = async (connectionType) => {
 
   const coursesCollection = mdClient.db("MyBotDataDB").collection("courses");
 
-  const getRandomDelay = () => Math.floor(Math.random() * (30 * 1000 - 20 * 1000) + 20 * 1000); // Random delay between 20 and 30 seconds
+const getRandomDelay = () => Math.floor(Math.random() * (30 * 1000 - 20 * 1000) + 20 * 1000); // Random delay between 20 and 30 seconds
 
-  const sendCourse = async (course) => {
-    const evilzone = "917887499710-1569411053@g.us";
+const sentCourses = new Set();
 
-    try {
-      const shortLink = await TinyURL.shorten(course.url);
+const sendCourse = async (course) => {
+  const evilzone = "917887499710-1569411053@g.us";
 
-      const sendMessage = async () => {
-        if (course.image) {
-          const response = await axios({
-            url: course.image,
-            method: 'GET',
-            responseType: 'arraybuffer'
-          });
+  try {
+    const shortLink = await TinyURL.shorten(course.url);
 
-          await sendMessageWTyping(evilzone, {
-            image: response.data,
-            caption: `📘 *Course:* ${course.name}\n\n📖 *Description:* ${course.shoer_description}\n\n🔗 *Enroll:* ${shortLink}\n\n🕒 *Enroll Course Before ${course.sale_end}*`
-          });
-        } else {
-          await sendMessageWTyping(evilzone, {
-            text: `📘 *Course:* ${course.name}\n\n📖 *Description:* ${course.shoer_description}\n\n🔗 *Enroll:* ${shortLink}\n\n🕒 *Enroll Course Before ${course.sale_end}*`
-          });
-        }
-      };
+    const sendMessage = async () => {
+      if (course.image) {
+        const response = await axios({
+          url: course.image,
+          method: 'GET',
+          responseType: 'arraybuffer'
+        });
 
-      await sendMessage();
-      console.log(`✅ Sent course: ${course.name}`);
-      const randomDelay = getRandomDelay();
-      await new Promise(resolve => setTimeout(resolve, randomDelay));
-
-    } catch (err) {
-      console.error('❌ Error sending course:', err);
-    }
-  };
-
-  const fetchAndSendCourses = async () => {
-    try {
-      const new_order = 'date';
-      const new_page = 1;
-      const per_page = 10;
-      const arg_free = 1;
-      const arg_keyword = "";
-      const arg_language = "";
-
-      const res = await axios.get(`https://www.real.discount/api/all-courses/?store=Udemy&page=${new_page}&per_page=${per_page}&orderby=${new_order}&free=${arg_free}&search=${arg_keyword}&language=${arg_language}`);
-      const courses = res.data.results.filter(course => course.language === "English");
-
-      console.log(`✨ Fetched ${courses.length} courses from the API`);
-
-      const existingCourses = await coursesCollection.find({}).toArray();
-      const newCourses = courses.filter(course => !existingCourses.some(existingCourse => existingCourse.url === course.url));
-
-      if (newCourses.length > 0) {
-        for (const course of newCourses) {
-          await coursesCollection.insertOne(course);
-          console.log(`📦 Stored course: ${course.name} in MongoDB`);
-
-          // Post the course just after inserting it into the database
-          await sendCourse(course);
-        }
+        await sendMessageWTyping(evilzone, {
+          image: response.data,
+          caption: `📘 *Course:* ${course.name}\n\n📖 *Description:* ${course.shoer_description}\n\n🔗 *Enroll:* ${shortLink}\n\n🕒 *Enroll Course Before ${course.sale_end}*`
+        });
       } else {
-        console.log("🚫 No new courses found");
+        await sendMessageWTyping(evilzone, {
+          text: `📘 *Course:* ${course.name}\n\n📖 *Description:* ${course.shoer_description}\n\n🔗 *Enroll:* ${shortLink}\n\n🕒 *Enroll Course Before ${course.sale_end}*`
+        });
       }
+    };
 
-    } catch (err) {
-      console.error("❌ Error fetching and storing courses:", err);
+    await sendMessage();
+    console.log(`✅ Sent course: ${course.name}`);
+    const randomDelay = getRandomDelay();
+    await new Promise(resolve => setTimeout(resolve, randomDelay));
+
+  } catch (err) {
+    console.error('❌ Error sending course:', err);
+  }
+};
+
+const fetchAndSendCourses = async () => {
+  try {
+    const new_order = 'date';
+    const new_page = 1;
+    const per_page = 10;
+    const arg_free = 1;
+    const arg_keyword = "";
+    const arg_language = "";
+
+    const res = await axios.get(`https://www.real.discount/api/all-courses/?store=Udemy&page=${new_page}&per_page=${per_page}&orderby=${new_order}&free=${arg_free}&search=${arg_keyword}&language=${arg_language}`);
+    const courses = res.data.results.filter(course => course.language === "English");
+
+    console.log(`✨ Fetched ${courses.length} courses from the API`);
+
+    for (const course of courses) {
+      if (!sentCourses.has(course.url)) {
+        sentCourses.add(course.url);
+
+        // Send the course immediately
+        await sendCourse(course);
+
+        // Store the course in the database
+        await coursesCollection.insertOne(course);
+        console.log(`📦 Stored course: ${course.name} in MongoDB`);
+      }
     }
-  };
+  } catch (err) {
+    console.error("❌ Error fetching and sending courses:", err);
+  }
+};
 
-  // Initial execution
+// Initial execution
+(async () => {
+  await mdClient.connect();
   fetchAndSendCourses();
-
-  // Set interval to fetch and send courses every 1 minute
   setInterval(fetchAndSendCourses, 1 * 60 * 1000);
-
-
+})();
 
   //-------------------------------------------------------------------------------------------------------------//
   const fake_quoted = (anu, message) => {
