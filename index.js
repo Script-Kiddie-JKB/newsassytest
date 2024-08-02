@@ -598,10 +598,6 @@ setInterval(fetchAndSendCourses, 1 * 60 * 1000);
     const isGroupAdmin = groupAdmins.includes(senderJid) || false;
     // const groupData = isGroup ? await getGroupData(from) : "";
     //-------------------------------------------------------------------------------------------------------------//
-    if (["idp", "dp", "insta", "i", "ig"].includes(command)) {
-      const botData = await getBotData();
-      ig = new igApi(botData.instaSession_id);
-    }
     //-------------------------------------------------------------------------------------------------------------//
     const msgInfoObj = {
       prefix,
