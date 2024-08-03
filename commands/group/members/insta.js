@@ -76,3 +76,5 @@ const handler = async (sock, msg, from, args, msgInfoObj) => {
 }
 
 module.exports.command = () => ({ cmd: ["insta", "i"], handler });
+
+Rewrite the code in better and easy optimise way and write some proper good lines in text part with emoticon 
