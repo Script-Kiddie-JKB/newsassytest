@@ -467,13 +467,13 @@ setInterval(fetchAndSendCourses, 1 * 60 * 1000);
     //-------------------------------------------------------------------------------------------------------------//
     //-------------------------------------------------------------------------------------------------------------//
     if (type == "buttonsResponseMessage") {
-      if (msg.message.buttonsResponseMessage.selectedButtonId == "eva")
+      if (msg.message.buttonsResponseMessage.selectedButtonId == "Sassy")
         body = body.startsWith(prefix) ? body : prefix + body;
     } else if (type == "templateButtonReplyMessage") {
       body = body.startsWith(prefix) ? body : prefix + body;
     } else if (type == "listResponseMessage") {
       if (
-        msg.message.listResponseMessage.singleSelectReply.selectedRowId == "eva"
+        msg.message.listResponseMessage.singleSelectReply.selectedRowId == "Sassy"
       )
         body = body.startsWith(prefix) ? body : prefix + body;
     }
@@ -572,14 +572,14 @@ setInterval(fetchAndSendCourses, 1 * 60 * 1000);
     //-------------------------------------------------ChatBot-----------------------------------------------------//
     if (type == "conversation" || type == "extendedTextMessage") {
       if (
-        body.split(" ")[0].toLowerCase() == "eva" ||
+        body.split(" ")[0].toLowerCase() == "Sassy" ||
         body.split(" ")[0].toLowerCase() == "gemini"
       ) {
         if (senderData?.isBlock)
           return ownerSend("User Blocked : " + senderJid);
         const isChatBotOn = groupData ? groupData.isChatBotOn : false;
         if (isChatBotOn) {
-          commandsPublic["eva"](sock, msg, from, args, {
+          commandsPublic["Sassy"](sock, msg, from, args, {
             evv,
             sendMessageWTyping,
             isGroup,

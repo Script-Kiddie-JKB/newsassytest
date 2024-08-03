@@ -97,4 +97,4 @@ const handler = async (sock, msg, from, args, msgInfoObj) => {
     }
 }
 
-module.exports.command = () => ({ cmd: ["eva", "gemini"], handler });
+module.exports.command = () => ({ cmd: ["Sassy", "gemini"], handler });

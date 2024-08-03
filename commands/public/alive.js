@@ -27,7 +27,7 @@ const handler = async (sock, msg, from, args, msgInfoObj) => {
 
     await sendMessageWTyping(
         from,
-        { text: "*Error: Eva not detected...*❣️" },
+        { text: "*Error: Sassy not detected...*❣️" },
         { quoted: msg }
         // {
         //     quoted: {

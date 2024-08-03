@@ -28,7 +28,7 @@ const handler = async (sock, msg, from, args, msgInfoObj) => {
     sock.sendMessage(from, {
         audio: { url: url },
         mimetype: 'audio/mpeg',
-        fileName: 'eva.mp4',
+        fileName: 'Sassy.mp4',
     }, {
         quoted: msg
     });
