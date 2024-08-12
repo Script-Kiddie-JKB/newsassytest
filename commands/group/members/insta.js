@@ -2,9 +2,10 @@ const snapsave = require("insta-downloader");
 
 // Helper function to validate the Instagram URL
 const isValidInstagramURL = (url) => {
-    return url.includes("instagram.com/p/") ||
-           url.includes("instagram.com/reel/") ||
-           url.includes("instagram.com/tv/");
+    return url.includes("instagram.com/") ||
+        url.includes("instagram.com/p/") ||
+        url.includes("instagram.com/reel/") ||
+        url.includes("instagram.com/tv/");
 };
 
 // Helper function to remove query parameters from URL
@@ -54,7 +55,7 @@ const handler = async (sock, msg, from, args, msgInfoObj) => {
 
         const uniqueUrls = [...new Set(res.data.map(item => item.url))];
         console.log(`📦 Found ${uniqueUrls.length} media items to download.`);
-        
+
         sendMediaWithDelay(sock, from, msg, uniqueUrls);
     } catch (error) {
         console.error(`❌ Error fetching data for URL: ${urlInsta}`, error);
