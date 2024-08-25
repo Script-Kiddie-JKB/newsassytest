@@ -11,3 +11,4 @@ baileys_store_multi.json
 # mongo-DB
 # indexMongodb.js
 # mongodb.js
+.dockerignore
