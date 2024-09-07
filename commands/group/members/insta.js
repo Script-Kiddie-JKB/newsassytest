@@ -1,67 +1,84 @@
 const snapsave = require("insta-downloader");
 
-// Helper function to validate the Instagram URL
-const isValidInstagramURL = (url) => {
-    return url.includes("instagram.com/") ||
-        url.includes("instagram.com/p/") ||
-        url.includes("instagram.com/reel/") ||
-        url.includes("instagram.com/tv/");
-};
-
-// Helper function to remove query parameters from URL
-const removeQueryParams = (url) => {
-    return url.includes("?") ? url.split("/?")[0] : url;
-};
-
-// Helper function to send messages with delay
-const sendMediaWithDelay = (sock, from, msg, mediaUrls) => {
-    mediaUrls.forEach((url, index) => {
-        setTimeout(() => {
-            const messageType = url.match(/\.(jpg|png|jpeg|webp)$/i) ? 'image' : 'video';
-            const media = { [messageType]: { url: url }, caption: "Downloaded by Sassy 🍁" };
-            console.log(`📤 Sending ${messageType} from URL: ${url}`);
-            sock.sendMessage(from, media, { quoted: msg });
-            console.log(`✅ Completed sending ${messageType} from URL: ${url}`);
-        }, 1000 * index);
-    });
-};
-
-// Main handler function
 const handler = async (sock, msg, from, args, msgInfoObj) => {
-    const { prefix, sendMessageWTyping } = msgInfoObj;
+    const { prefix, sendMessageWTyping, ig } = msgInfoObj;
 
-    if (args.length === 0) {
-        return sendMessageWTyping(from, { text: `❌ URL is empty! \nPlease send ${prefix}insta <url>` }, { quoted: msg });
-    }
-
+    if (args.length === 0) return sendMessageWTyping(from, { text: `❎ URL is empty! \nSend ${prefix}insta url` }, { quoted: msg });
     let urlInsta = args[0];
-    console.log(`🔗 Received URL: ${urlInsta}`);
 
-    if (!isValidInstagramURL(urlInsta)) {
-        return sendMessageWTyping(from, { text: `❌ Invalid URL! Only Instagram posts, reels, and TV videos can be downloaded.` }, { quoted: msg });
-    }
+    if (!(urlInsta.includes("instagram.com/") ||
+        urlInsta.includes("instagram.com/p/") ||
+        urlInsta.includes("instagram.com/reel/") ||
+        urlInsta.includes("instagram.com/tv/")))
+        return sendMessageWTyping(from,
+            { text: `❎ Wrong URL! Only Instagram posted videos, tv and reels can be downloaded.` },
+            { quoted: msg }
+        );
 
-    urlInsta = removeQueryParams(urlInsta);
-    console.log(`🔍 Processed URL: ${urlInsta}`);
+    if (urlInsta.includes("?")) urlInsta = urlInsta.split("/?")[0];
+    console.log(urlInsta);
 
-    try {
-        console.log(`📥 Request to download from URL: ${urlInsta}`);
-        const res = await snapsave(urlInsta);
-
-        if (!res.status) {
-            console.log(`⚠️ No data found for URL: ${urlInsta}`);
-            return sendMessageWTyping(from, { text: "🚫 No data found!" }, { quoted: msg });
+    // ig.fetchPost(urlInsta).then(async (res) => {
+    //     if (res.media_count == 1) {
+    //         if (res.links[0].type == "video") {
+    //             sock.sendMessage(from,
+    //                 { video: { url: res.links[0].url } },
+    //                 { quoted: msg }
+    //             )
+    //         } else if (res.links[0].type == "image") {
+    //             sock.sendMessage(from,
+    //                 { image: { url: res.links[0].url } },
+    //                 { quoted: msg }
+    //             )
+    //         }
+    //     } else if (res.media_count > 1) {
+    //         for (let i = 0; i < res.media_count; i++) {
+    //             await new Promise((resolve) => setTimeout(resolve, 500));
+    //             if (res.links[i].type == "video") {
+    //                 sock.sendMessage(from,
+    //                     { video: { url: res.links[i].url } },
+    //                     { quoted: msg }
+    //                 )
+    //             } else if (res.links[i].type == "image") {
+    //                 sock.sendMessage(from,
+    //                     { image: { url: res.links[i].url } },
+    //                     { quoted: msg }
+    //                 )
+    //             }
+    //         }
+    //     }
+    // }).catch(() => {
+    snapsave(urlInsta).then(async res => {
+        // console.log(res);
+        if (res.status) {
+            const data = [...new Set(res.data.map(item => item.url))];
+            for (let i = 0; i < data.length; i++) {
+                // await new Promise((resolve) => setTimeout(resolve, 500));
+                setTimeout(() => {
+                    const url = data[i];
+                    if (url.includes("jpg") || url.includes("png") || url.includes("jpeg") || url.includes("webp")) {
+                        sock.sendMessage(from,
+                            { image: { url: url } },
+                            { quoted: msg }
+                        );
+                    } else {
+                        sock.sendMessage(from,
+                            { video: { url: url } },
+                            { quoted: msg }
+                        );
+                    }
+                }, 1000 * 1);
+            }
+        } else {
+            sendMessageWTyping(from, { text: "No Data Found!!" }, { quoted: msg });
         }
+    })
+    // });
+}
 
-        const uniqueUrls = [...new Set(res.data.map(item => item.url))];
-        console.log(`📦 Found ${uniqueUrls.length} media items to download.`);
-
-        sendMediaWithDelay(sock, from, msg, uniqueUrls);
-    } catch (error) {
-        console.error(`❌ Error fetching data for URL: ${urlInsta}`, error);
-        sendMessageWTyping(from, { text: "🚫 Error fetching data! Please try again later." }, { quoted: msg });
-    }
-};
-
-// Export the command
-module.exports.command = () => ({ cmd: ["insta", "i"], handler });
+module.exports.command = () => ({
+    cmd: ["insta", "i"],
+    desc: "Download Instagram post",
+    usage: "insta | i <url>",
+    handler
+});
